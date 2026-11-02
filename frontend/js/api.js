@@ -1,5 +1,5 @@
 // api.js - API Client for BloodConnect
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 async function apiCall(endpoint, method, data, token = null) {
     const headers = {
