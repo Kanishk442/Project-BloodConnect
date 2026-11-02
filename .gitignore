@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+.vscode/
+.env
+backend/uploads/
+*.zip
+*.ckpt
+*.log
+.DS_Store
+Thumbs.db
+model_sources/

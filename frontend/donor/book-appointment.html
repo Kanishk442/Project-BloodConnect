@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .form-container h2 { margin-bottom: 1rem; color: var(--text-primary); }
+        .hospital-details { background: var(--bg-tertiary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div><a href="/" class="logo"><span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="logo-text">Blood<b>Connect</b></span></a></div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i data-icon="grid"></i> Dashboard</a></li>
+                <li><a href="appointments.html"><i data-icon="calendar"></i> Appointments</a></li>
+                <li><a href="book-appointment.html" class="active"><i data-icon="plus-circle"></i> Book Appointment</a></li>
+                <li><a href="alerts.html"><i data-icon="bell"></i> Alerts</a></li>
+            </ul>
+            <div class="theme-toggle-sidebar"><div class="theme-toggle" id="themeToggle"><span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i> Light</span><span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i> Dark</span></div></div>
+            <div style="margin-top: 1rem;"><a href="#" onclick="logout()" class="btn-logout"><i data-icon="log-out"></i> Logout</a></div>
+        </aside>
+
+        <main class="main-content">
+            <div class="form-container">
+                <h2>Book a Blood Donation Appointment</h2>
+                <div class="form-group"><label>Select Hospital</label><select id="hospitalSelect" class="form-control"><option>Loading hospitals...</option></select></div>
+                <div id="hospitalDetails" class="hospital-details"></div>
+                <div class="form-group"><label>Appointment Date</label><input type="date" id="appointmentDate" class="form-control"></div>
+                <div class="form-group"><label>Appointment Time</label><select id="appointmentTime" class="form-control"><option value="">Select Time</option><option value="09:00:00">09:00 AM</option><option value="10:00:00">10:00 AM</option><option value="11:00:00">11:00 AM</option><option value="12:00:00">12:00 PM</option><option value="14:00:00">02:00 PM</option><option value="15:00:00">03:00 PM</option><option value="16:00:00">04:00 PM</option><option value="17:00:00">05:00 PM</option></select></div>
+                <div class="form-group"><label>Notes (Optional)</label><textarea id="notes" class="form-control" rows="3"></textarea></div>
+                <button id="bookBtn" class="btn-primary">Book Appointment</button>
+                <div id="message"></div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+        const token = getToken(); const user = getUser();
+        if (!token || user.role !== 'donor') { window.location.href = '/login'; }
+        document.getElementById('appointmentDate').min = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+        async function loadHospitals() {
+            try {
+                const res = await fetch('http://localhost:5000/api/donor/hospitals/nearby');
+                const hospitals = await res.json();
+                const select = document.getElementById('hospitalSelect');
+                select.innerHTML = '<option value="">Select a Hospital</option>';
+                hospitals.forEach(h => select.innerHTML += `<option value="${h.hospital_id}" data-address="${h.address || ''}" data-phone="${h.phone || ''}">${h.name} - ${h.city}</option>`);
+            } catch(e) { document.getElementById('hospitalSelect').innerHTML = '<option>Error loading hospitals</option>'; }
+        }
+        document.getElementById('hospitalSelect').addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            const div = document.getElementById('hospitalDetails');
+            if (this.value) { div.style.display = 'block'; div.innerHTML = `<strong>📍 Address:</strong> ${opt.dataset.address || 'Not specified'}<br><strong>📞 Phone:</strong> ${opt.dataset.phone || 'Not specified'}`; }
+            else div.style.display = 'none';
+        });
+        document.getElementById('bookBtn').onclick = async function() {
+            const btn = this, msg = document.getElementById('message');
+            const hospitalId = document.getElementById('hospitalSelect').value;
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+            if (!hospitalId || !date || !time) { msg.innerHTML = '<div class="alert alert-danger">Please fill all fields</div>'; return; }
+            btn.disabled = true; btn.textContent = 'Booking...'; msg.innerHTML = '';
+            try {
+                const res = await fetch('http://localhost:5000/api/donor/appointments/book', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ hospital_id: parseInt(hospitalId), appointment_date: date, appointment_time: time, notes: document.getElementById('notes').value })
+                });
+                const result = await res.json();
+                if (res.ok) { msg.innerHTML = '<div class="alert alert-success">Appointment booked! Redirecting...</div>'; setTimeout(() => window.location.href = 'appointments.html', 1500); }
+                else { msg.innerHTML = `<div class="alert alert-danger">${result.error || 'Booking failed'}</div>`; btn.disabled = false; btn.textContent = 'Book Appointment'; }
+            } catch(e) { msg.innerHTML = `<div class="alert alert-danger">Error: ${e.message}</div>`; btn.disabled = false; btn.textContent = 'Book Appointment'; }
+        };
+        loadHospitals();
+    </script>
+    <script src="../js/icons.js"></script>
+</body>
+</html>

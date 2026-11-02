@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create account | BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                <span class="logo-text">Blood<b>Connect</b></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html" class="nav-cta">Register</a></li>
+                <li>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                        <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i></span>
+                        <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="auth-wrap">
+        <aside class="auth-aside">
+            <h2>Join a network that saves lives.</h2>
+            <p>Donors and hospitals register in minutes. Hospitals can then record donations and run AI-assisted screening.</p>
+            <ul class="auth-points">
+                <li><i data-icon="calendar"></i> Book and track donation appointments</li>
+                <li><i data-icon="award"></i> Earn recognition for every donation</li>
+                <li><i data-icon="shield"></i> Secure, role-based access for hospitals</li>
+            </ul>
+        </aside>
+        <main class="auth-main">
+    <div class="form-container">
+        <h2>Create account</h2>
+        <p class="form-subtitle">Join the BloodConnect community</p>
+        
+        <div class="role-selector">
+            <div class="role-btn active" data-role="donor"><i data-icon="droplet"></i> Donor</div>
+            <div class="role-btn" data-role="hospital"><i data-icon="hospital"></i> Hospital</div>
+        </div>
+
+        <form id="registerForm">
+            <!-- ========== COMMON FIELDS ========== -->
+            <div class="form-section-title">Account Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email address</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone number</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+                    <small>Minimum 6 characters</small>
+                </div>
+                <div class="form-group">
+                    <label>Confirm password</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                </div>
+            </div>
+
+            <!-- ========== DONOR FIELDS ========== -->
+            <div id="donorFields" class="donor-fields active">
+                <div class="form-section-title">Personal Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full name</label>
+                        <input type="text" id="fullName" class="form-control" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="age" class="form-control" placeholder="Age" min="16" max="100">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Blood group</label>
+                        <select id="bloodGroup" class="form-control">
+                            <option value="">Select blood group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="weight" class="form-control" placeholder="Weight in kg" step="0.1" min="45">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" class="form-control" placeholder="Your city">
+                    </div>
+                    <div class="form-group">
+                        <label>Address (Optional)</label>
+                        <input type="text" id="address" class="form-control" placeholder="Your address">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== HOSPITAL FIELDS (OPTIMIZED FOR DESKTOP) ========== -->
+            <div id="hospitalFields" class="hospital-fields">
+                <div class="form-section-title">Hospital Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hospital name</label>
+                        <input type="text" id="hospitalName" class="form-control" placeholder="Hospital name">
+                    </div>
+                    <div class="form-group">
+                        <label>License number</label>
+                        <input type="text" id="licenseNumber" class="form-control" placeholder="Medical license number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="hospitalCity" class="form-control" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>State / Region</label>
+                        <input type="text" id="hospitalState" class="form-control" placeholder="State or region">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Full address</label>
+                    <textarea id="hospitalAddress" class="form-control" rows="2" placeholder="Street address, building, etc."></textarea>
+                </div>
+                <div class="form-section-title">Location Details (Optional)</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Latitude</label>
+                        <input type="text" id="latitude" class="form-control" placeholder="e.g., 19.0760">
+                        <small>For map integration</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude</label>
+                        <input type="text" id="longitude" class="form-control" placeholder="e.g., 72.8777">
+                        <small>For map integration</small>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create account</button>
+        </form>
+        
+        <div class="form-footer">
+            <p>Already have an account? <a href="login.html">Sign in</a></p>
+        </div>
+        <div id="message"></div>
+    </div>
+
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let selectedRole = 'donor';
+
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedRole = btn.dataset.role;
+                
+                if (selectedRole === 'donor') {
+                    document.getElementById('donorFields').classList.add('active');
+                    document.getElementById('hospitalFields').classList.remove('active');
+                } else {
+                    document.getElementById('donorFields').classList.remove('active');
+                    document.getElementById('hospitalFields').classList.add('active');
+                }
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('message').innerHTML = '<div class="alert alert-danger">Passwords do not match</div>';
+                return;
+            }
+            
+            if (password.length < 6) {
+                document.getElementById('message').innerHTML = '<div class="alert alert-danger">Password must be at least 6 characters</div>';
+                return;
+            }
+            
+            const data = {
+                email: document.getElementById('email').value,
+                password: password,
+                role: selectedRole,
+                phone: document.getElementById('phone').value
+            };
+            
+            if (selectedRole === 'donor') {
+                data.full_name = document.getElementById('fullName').value;
+                data.age = document.getElementById('age').value;
+                data.blood_group = document.getElementById('bloodGroup').value;
+                data.weight_kg = document.getElementById('weight').value;
+                data.city = document.getElementById('city').value;
+                data.address = document.getElementById('address').value;
+            } else {
+                data.hospital_name = document.getElementById('hospitalName').value;
+                data.license_number = document.getElementById('licenseNumber').value;
+                data.address = document.getElementById('hospitalAddress').value;
+                data.city = document.getElementById('hospitalCity').value;
+                data.state = document.getElementById('hospitalState').value;
+                data.latitude = document.getElementById('latitude').value;
+                data.longitude = document.getElementById('longitude').value;
+            }
+            
+            const result = await register(data);
+            
+            if (result.success) {
+                document.getElementById('message').innerHTML = '<div class="alert alert-success">Account created successfully! Redirecting to login...</div>';
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                document.getElementById('message').innerHTML = '<div class="alert alert-danger">' + result.error + '</div>';
+            }
+        });
+    </script>
+    <script src="js/icons.js"></script>
+</body>
+</html>

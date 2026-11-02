@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+
+        .welcome-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        /* Badge Section */
+        .badge-section {
+            margin-bottom: 2rem;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .badge-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: var(--bg-tertiary);
+            transition: all 0.3s ease;
+            min-width: 130px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .badge-item.locked {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+        .badge-item.unlocked {
+            animation: badgeUnlock 0.5s ease;
+            background: linear-gradient(135deg, var(--primary-light), var(--bg-tertiary));
+            border: 1px solid var(--primary);
+        }
+
+        @keyframes badgeUnlock {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .badge-description {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .badge-progress {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .badge-unlock-date {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .badge-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .badge-item.unlocked::before {
+            transform: scaleX(1);
+        }
+
+        /* Hero Badge Special */
+        .hero-badge-highlight {
+            background: linear-gradient(135deg, #f59e0b, #e31e24);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toast-error {
+            background: #ef4444;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }@media (max-width: 768px) {
+
+
+            
+            .badge-container {
+                gap: 1rem;
+            }
+            
+            .badge-item {
+                min-width: 110px;
+            }
+        
+
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div>
+                <a href="/" class="logo">
+                    <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                    <span class="logo-text">Blood<b>Connect</b></span>
+                </a>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html" class="active"><i data-icon="grid"></i> Dashboard</a></li>
+                <li><a href="appointments.html"><i data-icon="calendar"></i> Appointments</a></li>
+                <li><a href="book-appointment.html"><i data-icon="plus-circle"></i> Book Appointment</a></li>
+                <li><a href="alerts.html"><i data-icon="bell"></i> Alerts</a></li>
+            </ul>
+            <div class="theme-toggle-sidebar">
+                <div class="theme-toggle" id="themeToggle">
+                    <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i> Light</span>
+                    <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i> Dark</span>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <a href="#" onclick="logout()" class="btn-logout"><i data-icon="log-out"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="welcome-header">
+                <h1>Welcome back, <span id="donorName">Donor</span>!</h1>
+                <p>Here's what's happening with your donations today.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-icon="droplet"></i></div>
+                    <div class="stat-value" id="donationCount">0</div>
+                    <div class="stat-label">Total Donations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-icon="bell"></i></div>
+                    <div class="stat-value" id="unreadAlerts">0</div>
+                    <div class="stat-label">Unread Alerts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-icon="calendar"></i></div>
+                    <div class="stat-value" id="pendingAppointments">0</div>
+                    <div class="stat-label">Pending Appointments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-icon="tag"></i></div>
+                    <div class="stat-value" id="bloodGroup">-</div>
+                    <div class="stat-label">Blood Group</div>
+                </div>
+            </div>
+
+            <!-- Badge Section -->
+            <div class="badge-section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i data-icon="award"></i> Donor Achievements</div>
+                        <div id="heroBadgeStatus" class="hero-badge-highlight" style="display: none;">
+                            <i data-icon="award"></i> Hero Badge Earned!
+                        </div>
+                    </div>
+                    <div id="badgeContainer" class="badge-container">
+                        <!-- Badges will be dynamically populated -->
+                        <div class="empty-state">Loading achievements...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="calendar"></i> Upcoming Appointments</div>
+                    <a href="book-appointment.html" class="btn-primary">+ Book New</a>
+                </div>
+                <div id="upcomingAppointments"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="file-text"></i> Recent Donations</div>
+                </div>
+                <div id="recentDonations"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const token = getToken();
+        const user = getUser();
+
+        if (!token || user.role !== 'donor') {
+            window.location.href = '/login';
+        }
+
+        document.getElementById('donorName').textContent = user.full_name || 'Donor';
+
+        // Badge definitions
+        const badgeDefinitions = [
+            {
+                id: 1,
+                name: 'First Blood',
+                icon: '🩸',
+                description: 'First successful donation',
+                required: 1,
+                unlocked: false
+            },
+            {
+                id: 2,
+                name: 'Lifesaver',
+                icon: '💪',
+                description: '3 donations completed',
+                required: 3,
+                unlocked: false
+            },
+            {
+                id: 3,
+                name: 'Hero Badge',
+                icon: '🏆',
+                description: '5+ donations - Elite donor',
+                required: 5,
+                unlocked: false
+            },
+            {
+                id: 4,
+                name: 'Platinum Donor',
+                icon: '💎',
+                description: '10+ donations - Platinum status',
+                required: 10,
+                unlocked: false
+            }
+        ];
+
+        // Load badges based on donation count
+        function loadBadges(donationCount) {
+            const container = document.getElementById('badgeContainer');
+            const heroBadgeStatus = document.getElementById('heroBadgeStatus');
+            
+            // Update badge unlocked status
+            const updatedBadges = badgeDefinitions.map(badge => ({
+                ...badge,
+                unlocked: donationCount >= badge.required,
+                current: donationCount,
+                unlocked_date: donationCount >= badge.required ? new Date().toLocaleDateString() : null
+            }));
+            
+            if (updatedBadges.length > 0) {
+                container.innerHTML = updatedBadges.map(badge => `
+                    <div class="badge-item ${badge.unlocked ? 'unlocked' : 'locked'}" onclick="showBadgeInfo('${badge.name}', ${badge.required}, ${donationCount})">
+                        <div class="badge-icon">${badge.icon}</div>
+                        <div class="badge-name">${badge.name}</div>
+                        <div class="badge-description">${badge.description}</div>
+                        ${badge.unlocked ? 
+                            `<div class="badge-unlock-date">✨ Unlocked: ${badge.unlocked_date}</div>` : 
+                            `<div class="badge-progress">📊 ${donationCount}/${badge.required} donations</div>`
+                        }
+                    </div>
+                `).join('');
+                
+                // Show hero badge status if donation count >= 5
+                if (donationCount >= 5) {
+                    heroBadgeStatus.style.display = 'inline-flex';
+                    heroBadgeStatus.innerHTML = '🏅 Hero Badge Earned!';
+                } else if (donationCount >= 3) {
+                    heroBadgeStatus.style.display = 'inline-flex';
+                    heroBadgeStatus.innerHTML = `💪 ${donationCount}/5 donations to Hero Badge`;
+                } else {
+                    heroBadgeStatus.style.display = 'none';
+                }
+            } else {
+                container.innerHTML = '<div class="empty-state">🏅 Make your first donation to unlock badges!</div>';
+            }
+        }
+
+        // Show badge info modal (optional)
+        window.showBadgeInfo = function(badgeName, required, current) {
+            const message = current >= required 
+                ? `🎉 Congratulations! You've earned the ${badgeName}!` 
+                : `🏆 ${badgeName}: Need ${required - current} more donation(s) to unlock. Keep saving lives!`;
+            
+            showToast(message, 'info');
+        };
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'toast-error' : ''}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function loadDashboard() {
+            const result = await getDonorDashboard(token);
+            if (result.success) {
+                const data = result.data;
+                const donationCount = data.donor.donation_count || 0;
+                
+                document.getElementById('donationCount').textContent = donationCount;
+                document.getElementById('unreadAlerts').textContent = data.unread_alerts || 0;
+                document.getElementById('pendingAppointments').textContent = data.upcoming_appointments.length;
+                document.getElementById('bloodGroup').textContent = data.donor.blood_group || '-';
+                
+                // Load badges based on donation count
+                loadBadges(donationCount);
+                
+                // Check if new badge was earned recently
+                const lastDonation = data.recent_donations && data.recent_donations[0];
+                if (lastDonation && lastDonation.badge_earned) {
+                    showToast(`🎉 Congratulations! You've earned the ${lastDonation.badge_earned} badge!`, 'success');
+                }
+                
+                // Upcoming appointments
+                const appointmentsDiv = document.getElementById('upcomingAppointments');
+                if (data.upcoming_appointments.length > 0) {
+                    appointmentsDiv.innerHTML = `
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Hospital</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.upcoming_appointments.map(apt => `
+                                        <tr>
+                                            <td>${fmtDate(apt.appointment_date)}</td>
+                                            <td>${apt.appointment_time}</td>
+                                            <td>${apt.hospital_name}</td>
+                                            <td><span class="badge badge-${apt.status}">${apt.status}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    appointmentsDiv.innerHTML = '<div class="empty-state">No upcoming appointments. <a href="book-appointment.html">Book one now!</a></div>';
+                }
+                
+                // Recent donations
+                const donationsDiv = document.getElementById('recentDonations');
+                if (data.recent_donations && data.recent_donations.length > 0) {
+                    donationsDiv.innerHTML = `
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Hospital</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.recent_donations.map(donation => `
+                                        <tr>
+                                            <td>${fmtDateTime(donation.donation_date)}</td>
+                                            <td>${donation.hospital_name || 'Blood Bank'}</td>
+                                            <td>${donation.quantity_ml} ml</td>
+                                            <td><span class="badge badge-confirmed">Completed</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    donationsDiv.innerHTML = '<div class="empty-state">No donation history yet. <a href="book-appointment.html">Book an appointment to donate!</a></div>';
+                }
+                
+                // Check for new alerts
+                if (data.unread_alerts > 0) {
+                    showToast(`🔔 You have ${data.unread_alerts} new unread alert(s)!`, 'info');
+                }
+            } else {
+                console.error('Failed to load dashboard:', result.error);
+                showToast('Failed to load dashboard data', 'error');
+            }
+        }
+
+        // Refresh dashboard every 30 seconds
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+        
+        // Add logout style
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn-logout {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem 1rem;
+                border-radius: 0.75rem;
+                text-decoration: none;
+                color: #ef4444;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+            .btn-logout:hover {
+                background: rgba(239, 68, 68, 0.1);
+            }
+            .toast {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #10b981;
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                font-weight: 500;
+            }
+            .toast-error {
+                background: #ef4444;
+            }
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <script src="../js/icons.js"></script>
+</body>
+</html>

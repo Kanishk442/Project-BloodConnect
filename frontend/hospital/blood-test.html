@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Test - BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .test-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .preview-container {
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .preview-container img {
+            max-width: 200px;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-card {
+            background: var(--bg-tertiary);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-card h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .badge-malaria, .badge-sickle {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            padding: 0;
+            animation: modalSlideIn 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-details {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 0.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-footer .btn {
+            padding: 0.5rem 1rem;
+        }
+
+        .health-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .health-badge.healthy {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .health-badge.unhealthy {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div>
+                <a href="/" class="logo">
+                    <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                    <span class="logo-text">Blood<b>Connect</b></span>
+                </a>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i data-icon="grid"></i> Dashboard</a></li>
+                <li><a href="appointments.html"><i data-icon="calendar"></i> Appointments</a></li>
+                <li><a href="blood-test.html" class="active"><i data-icon="flask"></i> Blood Test</a></li>
+                <li><a href="blood-tests.html"><i data-icon="file-text"></i> Test History</a></li>
+            </ul>
+            <div class="theme-toggle-sidebar">
+                <div class="theme-toggle" id="themeToggle">
+                    <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i> Light</span>
+                    <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i> Dark</span>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <a href="#" onclick="logout()" class="btn-logout"><i data-icon="log-out"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Blood Test Analysis</h1>
+                <p>Upload a blood cell image for instant AI-powered analysis</p>
+            </div>
+
+            <div class="test-selector">
+                <div class="test-option active" data-test="cell"><i data-icon="droplet"></i> Cell Type (WBC)</div>
+                <div class="test-option" data-test="malaria"><i data-icon="bug"></i> Malaria (RBC)</div>
+                <div class="test-option" data-test="leukemia"><i data-icon="activity"></i> Leukemia (ALL)</div>
+                <div class="test-option" data-test="sickle"><i data-icon="droplet"></i> Sickle Cell (RBC)</div>
+            </div>
+
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Select Donor</label>
+                    <select id="donorSelect" class="form-control">
+                        <option value="">Loading donors...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Appointment (Optional)</label>
+                    <select id="appointmentSelect" class="form-control">
+                        <option value="">No appointment (screening only)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Blood Cell Image</label>
+                    <input type="file" id="imageFile" class="form-control" accept="image/*">
+                    <small style="color: var(--text-muted);">Supported formats: JPG, PNG, BMP</small>
+                </div>
+
+                <div class="preview-container" id="previewContainer">
+                    <img id="previewImage" alt="Preview">
+                </div>
+
+                <button id="analyzeBtn" class="btn-primary">Analyze Image</button>
+
+                <div id="resultContainer" class="result-card"></div>
+                <div id="message"></div>
+            </div>
+
+            <!-- Modal for Donation Decision -->
+            <div id="donationModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="modalTitle">Donation Decision</h3>
+                        <span class="modal-close" onclick="closeModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modalIcon" class="modal-icon"><i data-icon="droplet"></i></div>
+                        <div id="modalMessage"></div>
+                        <div id="modalDetails" class="modal-details"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalConfirmBtn" class="btn btn-primary">Send for Donation</button>
+                        <button id="modalCancelBtn" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Global variables
+        let selectedTestType = 'cell';
+        let selectedFile = null;
+        let currentTestResult = null;
+        let currentDonorId = null;
+        let currentTestType = null;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = getToken();
+            const user = getUser();
+
+            if (!token || user.role !== 'hospital') {
+                window.location.href = '/login';
+                return;
+            }
+
+            // Test type selector
+            document.querySelectorAll('.test-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.test-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedTestType = this.dataset.test;
+                    
+                    let message = '';
+                    if (selectedTestType === 'cell') {
+                        message = 'Upload a white blood cell image for classification (Eosinophil, Lymphocyte, Monocyte, Neutrophil)';
+                    } else if (selectedTestType === 'malaria') {
+                        message = 'Upload a red blood cell image for malaria detection (Parasitized vs Uninfected)';
+                    } else if (selectedTestType === 'leukemia') {
+                        message = 'Upload a blood cell image for leukemia (ALL) detection';
+                    } else if (selectedTestType === 'sickle') {
+                        message = 'Upload a red blood cell image for Sickle Cell Disease detection';
+                    }
+                    document.getElementById('message').innerHTML = `<div class="alert alert-info">${message}</div>`;
+                });
+            });
+
+            // Image preview
+            document.getElementById('imageFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.getElementById('previewImage').src = event.target.result;
+                        document.getElementById('previewContainer').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Load donors
+            async function loadDonors() {
+                try {
+                    const response = await fetch(`${API_BASE}/hospital/appointments`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const appointments = await response.json();
+                    const donorSelect = document.getElementById('donorSelect');
+                    
+                    if (appointments && appointments.length > 0) {
+                        const uniqueDonors = {};
+                        appointments.forEach(apt => {
+                            if (apt.donor_id && !uniqueDonors[apt.donor_id]) {
+                                uniqueDonors[apt.donor_id] = {
+                                    id: apt.donor_id,
+                                    name: apt.donor_name,
+                                    blood_group: apt.blood_group
+                                };
+                            }
+                        });
+                        donorSelect.innerHTML = '<option value="">Select a Donor</option>';
+                        Object.values(uniqueDonors).forEach(donor => {
+                            donorSelect.innerHTML += `<option value="${donor.id}">${donor.name} (${donor.blood_group})</option>`;
+                        });
+                    } else {
+                        donorSelect.innerHTML = '<option value="">No donors found</option>';
+                    }
+                } catch (error) {
+                    console.error('Error loading donors:', error);
+                    document.getElementById('donorSelect').innerHTML = '<option value="">Error loading donors</option>';
+                }
+            }
+
+            // Analyze button click handler (SINGLE DEFINITION)
+            document.getElementById('analyzeBtn').onclick = async function() {
+                const donorId = document.getElementById('donorSelect').value;
+                const appointmentId = document.getElementById('appointmentSelect').value;
+                const messageDiv = document.getElementById('message');
+                const analyzeBtn = this;
+                
+                if (!donorId) {
+                    messageDiv.innerHTML = '<div class="alert alert-danger">Please select a donor</div>';
+                    return;
+                }
+                
+                if (!selectedFile) {
+                    messageDiv.innerHTML = '<div class="alert alert-danger">Please select an image</div>';
+                    return;
+                }
+                
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'Analyzing...';
+                messageDiv.innerHTML = '';
+                
+                const formData = new FormData();
+                formData.append('donor_id', donorId);
+                if (appointmentId && appointmentId !== '') {
+                    formData.append('appointment_id', appointmentId);
+                }
+                formData.append('image', selectedFile);
+                
+                let endpoint = '';
+                if (selectedTestType === 'cell') {
+                    endpoint = `${API_BASE}/hospital/blood-test/cell`;
+                } else if (selectedTestType === 'malaria') {
+                    endpoint = `${API_BASE}/hospital/blood-test/malaria`;
+                } else if (selectedTestType === 'leukemia') {
+                    endpoint = `${API_BASE}/hospital/blood-test/leukemia`;
+                } else if (selectedTestType === 'sickle') {
+                    endpoint = `${API_BASE}/hospital/blood-test/sickle`;
+                }
+                
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Upload failed');
+                    }
+                    
+                    const ml = result.result;
+                    currentTestResult = ml;
+                    currentDonorId = donorId;
+                    currentTestType = selectedTestType;
+                    
+                    const resultDiv = document.getElementById('resultContainer');
+                    resultDiv.style.display = 'block';
+                    
+                    // Determine if donor is eligible for donation
+                    let isEligible = false;
+                    let eligibilityMessage = '';
+                    
+                    if (selectedTestType === 'malaria') {
+                        isEligible = !ml.detected;
+                        eligibilityMessage = ml.detected ? '⚠️ Donor is NOT eligible to donate due to Malaria infection' : '✅ Donor is eligible to donate blood';
+                        
+                        resultDiv.innerHTML = `
+                            <h4>🦟 Malaria Detection Results</h4>
+                            <div><strong>Result:</strong> <span class="badge ${ml.detected ? 'badge-malaria' : 'badge-healthy'}">${ml.detected ? '⚠️ MALARIA DETECTED' : '✅ No Malaria Detected'}</span></div>
+                            <div><strong>Confidence:</strong><div class="confidence-bar"><div class="confidence-fill" style="width: ${ml.confidence}%;"></div></div><span>${ml.confidence}%</span></div>
+                            <div><strong>Message:</strong> ${ml.message}</div>
+                            <div class="eligibility-status" style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
+                                <strong>Donation Eligibility:</strong> ${eligibilityMessage}
+                            </div>
+                        `;
+                    } else if (selectedTestType === 'leukemia') {
+                        isEligible = !ml.detected;
+                        eligibilityMessage = ml.detected ? '⚠️ Donor is NOT eligible to donate due to Leukemia' : '✅ Donor is eligible to donate blood';
+                        
+                        resultDiv.innerHTML = `
+                            <h4>⚕️ Leukemia Screening Results</h4>
+                            <div><strong>Result:</strong> <span class="badge ${ml.detected ? 'badge-malaria' : 'badge-healthy'}">${ml.detected ? '⚠️ LEUKEMIA DETECTED' : '✅ No Leukemia Detected'}</span></div>
+                            <div><strong>Confidence:</strong><div class="confidence-bar"><div class="confidence-fill" style="width: ${ml.confidence}%;"></div></div><span>${ml.confidence}%</span></div>
+                            <div><strong>Message:</strong> ${ml.message}</div>
+                            <div class="eligibility-status" style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
+                                <strong>Donation Eligibility:</strong> ${eligibilityMessage}
+                            </div>
+                        `;
+                    } else if (selectedTestType === 'sickle') {
+                        isEligible = !ml.detected;
+                        eligibilityMessage = ml.detected ? '⚠️ Donor is NOT eligible to donate due to Sickle Cell Disease' : '✅ Donor is eligible to donate blood';
+                        
+                        resultDiv.innerHTML = `
+                            <h4>🔴 Sickle Cell Disease Detection</h4>
+                            <div><strong>Result:</strong> <span class="badge ${ml.detected ? 'badge-sickle' : 'badge-healthy'}">${ml.detected ? '⚠️ SICKLE CELL DETECTED' : '✅ No Sickle Cell Detected'}</span></div>
+                            <div><strong>Confidence:</strong><div class="confidence-bar"><div class="confidence-fill" style="width: ${ml.confidence}%;"></div></div><span>${ml.confidence}%</span></div>
+                            <div><strong>Message:</strong> ${ml.message}</div>
+                            <div class="eligibility-status" style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
+                                <strong>Donation Eligibility:</strong> ${eligibilityMessage}
+                            </div>
+                        `;
+                    } else {
+                        // Cell type classification
+                        isEligible = ml.is_healthy;
+                        eligibilityMessage = ml.is_healthy ? '✅ Donor is eligible to donate blood' : '⚠️ Donor is NOT eligible to donate - Consult doctor';
+                        
+                        resultDiv.innerHTML = `
+                            <h4>🧬 Cell Type Classification Results</h4>
+                            <div><strong>Detected Cell Type:</strong> <span class="badge badge-cell">${ml.cell_type}</span></div>
+                            <div><strong>Confidence:</strong><div class="confidence-bar"><div class="confidence-fill" style="width: ${ml.confidence}%;"></div></div><span>${ml.confidence}%</span></div>
+                            <div><strong>Possible Diseases:</strong><br>${ml.diseases.split(',').map(d => `• ${d.trim()}`).join('<br>')}</div>
+                            <div><strong>Donation Eligibility:</strong> <span class="badge ${ml.is_healthy ? 'badge-healthy' : 'badge-unhealthy'}">${ml.is_healthy ? 'Eligible to Donate' : 'Not Eligible - Consult Doctor'}</span></div>
+                            <div class="eligibility-status" style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
+                                <strong>Health Status:</strong> ${eligibilityMessage}
+                            </div>
+                        `;
+                    }
+                    
+                    // Show modal for donation decision
+                    if (isEligible) {
+                        showDonationModal(ml, donorId, selectedTestType, true);
+                    } else {
+                        showDonationModal(ml, donorId, selectedTestType, false);
+                        // Auto-send alert for unhealthy donors
+                        await sendHealthAlert(donorId, ml, selectedTestType);
+                    }
+                    
+                    messageDiv.innerHTML = '<div class="alert alert-success">Analysis complete!</div>';
+                    
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    messageDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                } finally {
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze Image';
+                }
+            };
+
+            // Modal functions
+            function showDonationModal(result, donorId, testType, isEligible) {
+                const modal = document.getElementById('donationModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalIcon = document.getElementById('modalIcon');
+                const modalMessage = document.getElementById('modalMessage');
+                const modalDetails = document.getElementById('modalDetails');
+                const confirmBtn = document.getElementById('modalConfirmBtn');
+                const cancelBtn = document.getElementById('modalCancelBtn');
+                
+                if (isEligible) {
+                    modalTitle.innerHTML = '✅ Donor is Eligible!';
+                    modalIcon.innerHTML = '🩸';
+                    modalIcon.style.color = '#10b981';
+                    modalMessage.innerHTML = `
+                        <strong style="color: #10b981;">Great News!</strong><br>
+                        The donor is healthy and eligible to donate blood.
+                    `;
+                    modalDetails.innerHTML = `
+                        <div><strong>Test Type:</strong> ${getTestTypeName(testType)}</div>
+                        <div><strong>Health Status:</strong> <span class="health-badge healthy">Healthy</span></div>
+                        <div><strong>Confidence:</strong> ${result.confidence}%</div>
+                        ${result.cell_type ? `<div><strong>Cell Type:</strong> ${result.cell_type}</div>` : ''}
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                            <strong>Would you like to send this donor for donation?</strong>
+                        </div>
+                    `;
+                    confirmBtn.style.display = 'block';
+                    confirmBtn.textContent = '✅ Send for Donation';
+                    confirmBtn.onclick = () => handleDonationDecision(donorId, result, testType, true);
+                } else {
+                    modalTitle.innerHTML = '⚠️ Donor Not Eligible';
+                    modalIcon.innerHTML = '⚠️';
+                    modalIcon.style.color = '#ef4444';
+                    modalMessage.innerHTML = `
+                        <strong style="color: #ef4444;">Health Issue Detected!</strong><br>
+                        The donor has a medical condition and cannot donate blood.
+                    `;
+                    modalDetails.innerHTML = `
+                        <div><strong>Test Type:</strong> ${getTestTypeName(testType)}</div>
+                        <div><strong>Health Status:</strong> <span class="health-badge unhealthy">Unhealthy</span></div>
+                        <div><strong>Confidence:</strong> ${result.confidence}%</div>
+                        ${result.cell_type ? `<div><strong>Cell Type:</strong> ${result.cell_type}</div>` : ''}
+                        ${result.detected ? `<div><strong>Detected:</strong> ${testType === 'malaria' ? 'Malaria' : testType === 'leukemia' ? 'Leukemia' : 'Sickle Cell'}</div>` : ''}
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); color: #ef4444;">
+                            <strong>❌ Not eligible for donation</strong><br>
+                            An alert will be sent to the donor for medical consultation.
+                        </div>
+                    `;
+                    confirmBtn.style.display = 'none';
+                    cancelBtn.textContent = 'Close';
+                }
+                
+                modal.style.display = 'flex';
+            }
+
+            function getTestTypeName(testType) {
+                const types = {
+                    'cell': 'Cell Type Classification',
+                    'malaria': 'Malaria Detection',
+                    'leukemia': 'Leukemia Screening',
+                    'sickle': 'Sickle Cell Detection'
+                };
+                return types[testType] || 'Blood Test';
+            }
+
+            async function handleDonationDecision(donorId, result, testType, isEligible) {
+                if (!isEligible) {
+                    closeModal();
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_BASE}/hospital/donations/record`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            donor_id: donorId,
+                            test_type: testType,
+                            test_result: result,
+                            quantity_ml: 450
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        showSuccessNotification('Donation recorded successfully! Donor notified.');
+                        closeModal();
+                        
+                        setTimeout(() => {
+                            if (confirm('Donation completed! Would you like to return to dashboard?')) {
+                                window.location.href = 'dashboard.html';
+                            }
+                        }, 2000);
+                    } else {
+                        throw new Error(data.error || 'Failed to record donation');
+                    }
+                } catch (error) {
+                    console.error('Error recording donation:', error);
+                    showErrorNotification('Failed to record donation: ' + error.message);
+                }
+            }
+
+            async function sendHealthAlert(donorId, result, testType) {
+                try {
+                    const alertData = {
+                        donor_id: donorId,
+                        alert_type: 'health',
+                        title: `${getTestTypeName(testType)} - Abnormal Result`,
+                        message: `Your blood test showed abnormal results. Please consult a doctor immediately.`,
+                        test_details: result
+                    };
+                    
+                    const response = await fetch(`${API_BASE}/hospital/alerts/send`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(alertData)
+                    });
+                    
+                    if (response.ok) {
+                        console.log('Health alert sent to donor');
+                        showSuccessNotification('Health alert sent to donor');
+                    }
+                } catch (error) {
+                    console.error('Error sending alert:', error);
+                }
+            }
+
+            function showSuccessNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification success';
+                notification.innerHTML = `
+                    <div style="background: #10b981; color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; animation: slideIn 0.3s ease; position: fixed; top: 20px; right: 20px; z-index: 10000;">
+                        ✅ ${message}
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            function showErrorNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification error';
+                notification.innerHTML = `
+                    <div style="background: #ef4444; color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; animation: slideIn 0.3s ease; position: fixed; top: 20px; right: 20px; z-index: 10000;">
+                        ❌ ${message}
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            function closeModal() {
+                const modal = document.getElementById('donationModal');
+                modal.style.display = 'none';
+            }
+
+            // Make functions globally available
+            window.closeModal = closeModal;
+            window.handleDonationDecision = handleDonationDecision;
+
+            // Set initial message
+            document.getElementById('message').innerHTML = '<div class="alert alert-info">Upload a white blood cell image for classification (Eosinophil, Lymphocyte, Monocyte, Neutrophil)</div>';
+            
+            // Load donors
+            await loadDonors();
+        });
+    </script>
+    <script src="../js/icons.js"></script>
+</body>
+</html>

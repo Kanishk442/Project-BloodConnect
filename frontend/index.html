@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodConnect | Blood donation and AI-assisted screening</title>
+    <meta name="description" content="BloodConnect connects blood donors with hospitals and offers AI-assisted screening of blood-smear images.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z' fill='%23d62839'/%3E%3Cpath d='M16 14v8M12 18h8' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                <span class="logo-text">Blood<b>Connect</b></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#services">Services</a></li>
+                <li><a href="#how">How it works</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html" class="nav-cta">Register</a></li>
+                <li>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                        <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i></span>
+                        <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="lp-hero">
+        <div class="lp-hero-inner">
+            <div>
+                <span class="lp-eyebrow"><i data-icon="heart"></i> Blood donation &amp; screening platform</span>
+                <h1>Connecting donors and hospitals, <em>faster and smarter.</em></h1>
+                <p class="lead">Book donations, manage appointments and run AI-assisted screening of blood-smear images, all in one secure place built for donors and hospital teams.</p>
+                <div class="lp-cta">
+                    <a href="register.html" class="btn btn-primary btn-lg">Get started <i data-icon="arrow-right"></i></a>
+                    <a href="login.html" class="btn btn-outline btn-lg">Sign in</a>
+                </div>
+                <div class="lp-trust">
+                    <span><i data-icon="check-circle"></i> Donor &amp; hospital portals</span>
+                    <span><i data-icon="lock"></i> Secure login</span>
+                    <span><i data-icon="activity"></i> 4 screening models</span>
+                </div>
+            </div>
+            <div class="lp-visual">
+                <div class="lp-chip c2"><i data-icon="check-circle"></i> Appointment confirmed</div>
+                <div class="lp-panel">
+                    <div class="lp-panel-head"><span>Sample analysis</span><small>Illustrative example</small></div>
+                    <svg class="lp-ecg" viewBox="0 0 400 70" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M0 40h70l12-24 16 48 14-40 10 16h60l12-26 16 52 14-42 10 16h86"/></svg>
+                    <div class="lp-result">
+                        <div><b>Neutrophil</b><span>Cell type</span></div>
+                        <div><b>88%</b><span>Confidence</span></div>
+                        <div><b>Normal</b><span>Screening</span></div>
+                    </div>
+                    <div class="lp-bar"><i></i></div>
+                    <small style="color:var(--text-muted)">Results support, never replace, a clinician's judgement.</small>
+                </div>
+                <div class="lp-chip c1"><i data-icon="droplet"></i> Blood group O+ needed nearby</div>
+            </div>
+        </div>
+    </header>
+
+    <section class="lp-section" id="services">
+        <div class="lp-section-head">
+            <span class="lp-kicker">Services</span>
+            <h2>Everything a donation programme needs</h2>
+            <p>From the first appointment to the lab result, BloodConnect keeps donors and hospital teams on the same page.</p>
+        </div>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon"><i data-icon="microscope"></i></div>
+                <h3>AI-assisted blood analysis</h3>
+                <p>Classify white blood cell types and screen smear images for malaria, leukemia (ALL) and sickle cell indicators.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-icon="calendar"></i></div>
+                <h3>Appointment management</h3>
+                <p>Donors book a slot with a hospital; staff confirm, reschedule or complete it from their dashboard.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-icon="hospital"></i></div>
+                <h3>Hospital workspace</h3>
+                <p>Record donations, upload samples and keep a searchable history of every test performed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-icon="bell"></i></div>
+                <h3>Instant alerts</h3>
+                <p>Donors are notified when a screening needs attention so follow-up care is never delayed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-icon="award"></i></div>
+                <h3>Donor recognition</h3>
+                <p>Milestone badges celebrate repeat donors, from a first donation to platinum status.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-icon="map-pin"></i></div>
+                <h3>Find hospitals</h3>
+                <p>Browse registered hospitals and choose the one closest to you when booking.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section tight" id="how">
+        <div class="lp-section-head">
+            <span class="lp-kicker">How it works</span>
+            <h2>Four simple steps</h2>
+        </div>
+        <div class="steps">
+            <div class="step"><div class="step-number">1</div><h3>Create an account</h3><p>Register as a donor or as a hospital in under a minute.</p></div>
+            <div class="step"><div class="step-number">2</div><h3>Book or manage</h3><p>Donors pick a hospital and time; hospitals review requests.</p></div>
+            <div class="step"><div class="step-number">3</div><h3>Donate &amp; screen</h3><p>Staff record the donation and can upload smear images for AI-assisted screening.</p></div>
+            <div class="step"><div class="step-number">4</div><h3>Follow up</h3><p>Results and alerts appear on the donor dashboard for timely care.</p></div>
+        </div>
+    </section>
+
+    <section class="lp-section tight">
+        <div class="lp-roles">
+            <div class="lp-role donor">
+                <h3>For donors</h3>
+                <ul>
+                    <li><i data-icon="check"></i> Book appointments with registered hospitals</li>
+                    <li><i data-icon="check"></i> Track your donation history and milestones</li>
+                    <li><i data-icon="check"></i> Get alerts that need your attention</li>
+                </ul>
+                <a href="register.html" class="btn">Register as a donor</a>
+            </div>
+            <div class="lp-role hospital">
+                <h3>For hospitals</h3>
+                <ul>
+                    <li><i data-icon="check"></i> Manage incoming appointment requests</li>
+                    <li><i data-icon="check"></i> Record donations and run screening tests</li>
+                    <li><i data-icon="check"></i> Keep a complete, searchable test history</li>
+                </ul>
+                <a href="register.html" class="btn">Register a hospital</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="lp-disclaimer">
+        <div>
+            <i data-icon="alert-triangle"></i>
+            <p style="margin:0"><strong>Not a medical device.</strong> BloodConnect's AI screening is an educational, research-grade aid and has not been clinically validated. It does not provide a diagnosis; always consult a qualified healthcare professional.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html" class="logo"><span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="logo-text">BloodConnect</span></a>
+            </div>
+            <div class="footer-links">
+                <a href="#services">Services</a>
+                <a href="login.html">Login</a>
+                <a href="register.html">Register</a>
+            </div>
+            <div class="footer-copyright"><p>&copy; 2026 BloodConnect. Final-year project, VIT Bhopal.</p></div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/icons.js"></script>
+</body>
+</html>

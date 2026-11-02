@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard - BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+
+        .welcome-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div>
+                <a href="/" class="logo">
+                    <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                    <span class="logo-text">Blood<b>Connect</b></span>
+                </a>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html" class="active"><i data-icon="grid"></i> Dashboard</a></li>
+                <li><a href="appointments.html"><i data-icon="calendar"></i> Appointments</a></li>
+                <li><a href="blood-test.html"><i data-icon="flask"></i> Blood Test</a></li>
+                <li><a href="blood-tests.html"><i data-icon="file-text"></i> Test History</a></li>
+            </ul>
+            <div class="theme-toggle-sidebar">
+                <div class="theme-toggle" id="themeToggle">
+                    <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i> Light</span>
+                    <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i> Dark</span>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <a href="#" onclick="logout()" class="btn-logout"><i data-icon="log-out"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="welcome-header">
+                <h1>Welcome, <span id="hospitalName">Hospital</span>!</h1>
+                <p>Manage appointments and blood tests from your dashboard.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="todayAppointments">0</div>
+                    <div class="stat-label">Today's Appointments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingAppointments">0</div>
+                    <div class="stat-label">Pending Appointments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="recentTests">0</div>
+                    <div class="stat-label">Recent Blood Tests</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="calendar"></i> Today's Appointments</div>
+                </div>
+                <div id="todayAppointmentsList"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="clock"></i> Pending Appointments</div>
+                </div>
+                <div id="pendingAppointmentsList"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="flask"></i> Recent Blood Tests</div>
+                </div>
+                <div id="recentTestsList"></div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="blood-test.html" class="btn-primary">+ Upload Blood Test</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const token = getToken();
+        const user = getUser();
+
+        if (!token || user.role !== 'hospital') {
+            window.location.href = '/login';
+        }
+
+        document.getElementById('hospitalName').textContent = user.name || 'Hospital';
+
+        async function loadDashboard() {
+            const result = await getHospitalDashboard(token);
+            if (result.success) {
+                const data = result.data;
+                document.getElementById('todayAppointments').textContent = data.today_appointments.length;
+                document.getElementById('pendingAppointments').textContent = data.pending_appointments.length;
+                document.getElementById('recentTests').textContent = data.recent_tests.length;
+
+                // Today's appointments
+                const todayDiv = document.getElementById('todayAppointmentsList');
+                if (data.today_appointments.length > 0) {
+                    todayDiv.innerHTML = `
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Donor</th><th>Time</th><th>Blood Group</th><th>Status</th></tr></thead>
+                                <tbody>${data.today_appointments.map(apt => `
+                                    <tr><td>${apt.donor_name}</td><td>${apt.appointment_time}</td><td>${apt.blood_group}</td><td><span class="badge badge-${apt.status}">${apt.status}</span></td></tr>
+                                `).join('')}</tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    todayDiv.innerHTML = '<div class="empty-state">No appointments scheduled for today.</div>';
+                }
+
+                // Pending appointments
+                const pendingDiv = document.getElementById('pendingAppointmentsList');
+                if (data.pending_appointments.length > 0) {
+                    pendingDiv.innerHTML = `
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Donor</th><th>Date</th><th>Time</th><th>Blood Group</th><th>Action</th></tr></thead>
+                                <tbody>${data.pending_appointments.map(apt => `
+                                    <tr><td>${apt.donor_name}</td><td>${fmtDate(apt.appointment_date)}</td><td>${apt.appointment_time}</td><td>${apt.blood_group}</td><td><button class="btn-success" onclick="confirmAppointment(${apt.appointment_id})">Confirm</button></td></tr>
+                                `).join('')}</tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    pendingDiv.innerHTML = '<div class="empty-state">No pending appointments.</div>';
+                }
+
+                // Recent tests
+                const testsDiv = document.getElementById('recentTestsList');
+                if (data.recent_tests.length > 0) {
+                    testsDiv.innerHTML = `
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Donor</th><th>Cell Type</th><th>Confidence</th><th>Diseases</th><th>Healthy</th></tr></thead>
+                                <tbody>${data.recent_tests.map(test => `
+                                    <tr><td>${test.donor_name}</td><td><strong>${test.ml_cell_type}</strong></td><td>${test.ml_confidence}%</td><td>${test.diseases_detected}</td><td><span class="badge ${test.is_healthy ? 'badge-confirmed' : 'badge-pending'}">${test.is_healthy ? 'Yes' : 'No'}</span></td></tr>
+                                `).join('')}</tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    testsDiv.innerHTML = '<div class="empty-state">No blood tests uploaded yet.</div>';
+                }
+            }
+        }
+
+        async function confirmAppointment(appointmentId) {
+            const result = await updateAppointmentStatus(token, appointmentId, 'confirmed');
+            if (result.success) {
+                alert('Appointment confirmed!');
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        loadDashboard();
+    </script>
+    <script src="../js/icons.js"></script>
+</body>
+</html>

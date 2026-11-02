@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Alerts - BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+        
+        /* Enhanced Alert Items */
+        .alert-item { 
+            padding: 1.25rem 1.5rem; 
+            border-bottom: 1px solid var(--border-color); 
+            transition: all 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+        .alert-item:hover { background: var(--bg-tertiary); transform: translateX(4px); }
+        .alert-item.unread { background: var(--primary-light); }
+        
+        .alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .alert-title { font-weight: 600; color: var(--text-primary); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .alert-date { font-size: 0.75rem; color: var(--text-muted); }
+        .alert-message { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem; line-height: 1.5; }
+        
+        /* Alert Type Specific Styles */
+        .alert-health { border-left: 4px solid #ef4444; }
+        .alert-donation { border-left: 4px solid #10b981; }
+        .alert-appointment { border-left: 4px solid #f59e0b; }
+        .alert-badge { border-left: 4px solid #f59e0b; background: linear-gradient(90deg, rgba(245, 158, 11, 0.05), transparent); }
+        
+        .alert-icon { font-size: 1.25rem; }
+        .badge-read { 
+            background: var(--bg-tertiary); 
+            color: var(--text-muted); 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 1rem; 
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .badge-new { 
+            background: #ef4444; 
+            color: white; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 1rem; 
+            font-size: 0.7rem;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* Alert Actions */
+        .alert-actions { 
+            display: flex; 
+            gap: 0.75rem; 
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .alert-btn { 
+            padding: 0.375rem 0.875rem; 
+            border-radius: 0.5rem; 
+            font-size: 0.75rem; 
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        .alert-btn:hover { transform: translateY(-1px); }
+        .alert-btn-primary { background: var(--primary); color: white; }
+        .alert-btn-primary:hover { background: var(--primary-dark); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        /* Filter Bar */
+        .filter-bar { 
+            display: flex; 
+            gap: 0.75rem; 
+            margin-bottom: 1.5rem; 
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-btn { 
+            padding: 0.5rem 1.25rem; 
+            border-radius: 2rem; 
+            background: var(--bg-tertiary); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-secondary); 
+            font-size: 0.875rem; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .filter-btn:hover { transform: translateY(-1px); }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* Mark All Read Button */
+        .mark-read-btn { 
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; 
+            background: var(--bg-tertiary); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-secondary); 
+            font-size: 0.75rem; 
+            cursor: pointer; 
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mark-read-btn:hover { background: var(--primary); color: white; }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 500;
+        }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Stats Summary */
+        .stats-summary {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .stat-pill-number {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.125rem;
+        }
+        
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table th, .info-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .info-table th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-secondary); }@media (max-width: 768px) {
+
+
+            .filter-bar { justify-content: center; }
+        
+
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div><a href="/" class="logo"><span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="logo-text">Blood<b>Connect</b></span></a></div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i data-icon="grid"></i> Dashboard</a></li>
+                <li><a href="appointments.html"><i data-icon="calendar"></i> Appointments</a></li>
+                <li><a href="book-appointment.html"><i data-icon="plus-circle"></i> Book Appointment</a></li>
+                <li><a href="alerts.html" class="active"><i data-icon="bell"></i> Alerts</a></li>
+            </ul>
+            <div class="theme-toggle-sidebar"><div class="theme-toggle" id="themeToggle"><span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i> Light</span><span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i> Dark</span></div></div>
+            <div style="margin-top: 1rem;"><a href="#" onclick="logout()" class="btn-logout"><i data-icon="log-out"></i> Logout</a></div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Health Alerts & Notifications</h1>
+                <p>Important health updates, donation confirmations, and achievement notifications</p>
+            </div>
+            
+            <!-- Stats Summary -->
+            <div class="stats-summary" id="statsSummary">
+                <div class="stat-pill"><i data-icon="grid"></i> Total: <span id="totalAlerts" class="stat-pill-number">0</span></div>
+                <div class="stat-pill"><i data-icon="bell"></i> Unread: <span id="unreadAlerts" class="stat-pill-number">0</span></div>
+                <div class="stat-pill"><i data-icon="droplet"></i> Donations: <span id="donationAlerts" class="stat-pill-number">0</span></div>
+                <div class="stat-pill"><i data-icon="alert-triangle"></i> Health: <span id="healthAlerts" class="stat-pill-number">0</span></div>
+                <div class="stat-pill"><i data-icon="award"></i> Badges: <span id="badgeAlerts" class="stat-pill-number">0</span></div>
+            </div>
+            
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="health"><i data-icon="alert-triangle"></i> Health</button>
+                <button class="filter-btn" data-filter="donation"><i data-icon="droplet"></i> Donation</button>
+                <button class="filter-btn" data-filter="badge"><i data-icon="award"></i> Badges</button>
+                <button class="filter-btn" data-filter="appointment"><i data-icon="calendar"></i> Appointment</button>
+                <button class="filter-btn" data-filter="unread"><i data-icon="bell"></i> Unread</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="bell"></i> Recent Alerts</div>
+                    <button id="markAllReadBtn" class="mark-read-btn"><i data-icon="check"></i> Mark All as Read</button>
+                </div>
+                <div id="alertsList"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-icon="clipboard"></i> Understanding Your Results</div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Cell Type</th>
+                                <th>Possible Conditions</th>
+                                <th>Action Needed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i data-icon="droplet"></i> LYMPHOCYTE</td>
+                                <td>Lymphoma, Leukemia, Viral Infections</td>
+                                <td>Consult physician immediately</td>
+                            </tr>
+                            <tr>
+                                <td><i data-icon="activity"></i> NEUTROPHIL</td>
+                                <td>Bacterial Infections, Inflammation</td>
+                                <td>Monitor symptoms, follow-up test</td>
+                            </tr>
+                            <tr>
+                                <td><i data-icon="bug"></i> MONOCYTE</td>
+                                <td>Chronic Infections, TB, Autoimmune</td>
+                                <td>Further testing recommended</td>
+                            </tr>
+                            <tr>
+                                <td><i data-icon="activity"></i> EOSINOPHIL</td>
+                                <td>Allergies, Parasitic Infections, Asthma</td>
+                                <td>Allergy testing recommended</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../js/api.js"></script>
+    <script>
+        const token = getToken();
+        const user = getUser();
+        let allAlerts = [];
+        let currentFilter = 'all';
+        
+        if (!token || user.role !== 'donor') {
+            window.location.href = '/login';
+        }
+        
+        // Get alert icon based on type
+        function getAlertIcon(type) {
+            const icons = {
+                'health': '⚠️',
+                'donation': '🩸',
+                'appointment': '📅',
+                'badge': '🏆'
+            };
+            return icons[type] || '🔔';
+        }
+        
+        // Get alert title prefix
+        function getAlertTitle(type, title) {
+            const prefixes = {
+                'health': '🏥 Health Alert: ',
+                'donation': '🩸 Donation: ',
+                'appointment': '📅 Appointment: ',
+                'badge': '🏆 Achievement: '
+            };
+            return (prefixes[type] || '') + title;
+        }
+        
+        // Mark alert as read
+        async function markAsRead(alertId) {
+            try {
+                const response = await fetch(`${API_BASE}/donor/alerts/${alertId}/read`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    // Update local data
+                    const alert = allAlerts.find(a => a.alert_id === alertId);
+                    if (alert) {
+                        alert.is_read = true;
+                    }
+                    renderAlerts();
+                    updateStats();
+                    showToast('Alert marked as read', 'success');
+                }
+            } catch (error) {
+                console.error('Error marking alert as read:', error);
+            }
+        }
+        
+        // Mark all alerts as read
+        async function markAllAsRead() {
+            try {
+                const response = await fetch(`${API_BASE}/donor/alerts/mark-all-read`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    allAlerts.forEach(alert => alert.is_read = true);
+                    renderAlerts();
+                    updateStats();
+                    showToast('All alerts marked as read', 'success');
+                }
+            } catch (error) {
+                console.error('Error marking all alerts as read:', error);
+                showToast('Failed to mark all as read', 'error');
+            }
+        }
+        
+        // Delete alert
+        async function deleteAlert(alertId) {
+            if (confirm('Are you sure you want to delete this alert?')) {
+                try {
+                    const response = await fetch(`${API_BASE}/donor/alerts/${alertId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        allAlerts = allAlerts.filter(a => a.alert_id !== alertId);
+                        renderAlerts();
+                        updateStats();
+                        showToast('Alert deleted', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error deleting alert:', error);
+                    showToast('Failed to delete alert', 'error');
+                }
+            }
+        }
+        
+        // Update stats summary
+        function updateStats() {
+            const total = allAlerts.length;
+            const unread = allAlerts.filter(a => !a.is_read).length;
+            const health = allAlerts.filter(a => a.alert_type === 'health').length;
+            const donation = allAlerts.filter(a => a.alert_type === 'donation').length;
+            const badge = allAlerts.filter(a => a.alert_type === 'badge').length;
+            
+            document.getElementById('totalAlerts').textContent = total;
+            document.getElementById('unreadAlerts').textContent = unread;
+            document.getElementById('healthAlerts').textContent = health;
+            document.getElementById('donationAlerts').textContent = donation;
+            document.getElementById('badgeAlerts').textContent = badge;
+        }
+        
+        // Render alerts with filter
+        function renderAlerts() {
+            let filteredAlerts = allAlerts;
+            
+            if (currentFilter === 'unread') {
+                filteredAlerts = allAlerts.filter(a => !a.is_read);
+            } else if (currentFilter !== 'all') {
+                filteredAlerts = allAlerts.filter(a => a.alert_type === currentFilter);
+            }
+            
+            const container = document.getElementById('alertsList');
+            
+            if (filteredAlerts.length > 0) {
+                container.innerHTML = filteredAlerts.map(alert => `
+                    <div class="alert-item alert-${alert.alert_type} ${!alert.is_read ? 'unread' : ''}" onclick="markAsRead(${alert.alert_id})">
+                        <div class="alert-header">
+                            <div class="alert-title">
+                                <span class="alert-icon">${getAlertIcon(alert.alert_type)}</span>
+                                ${getAlertTitle(alert.alert_type, alert.title)}
+                            </div>
+                            <div class="alert-date">${fmtDateTime(alert.created_at)}</div>
+                        </div>
+                        <div class="alert-message">${alert.message}</div>
+                        ${alert.test_details ? `
+                            <div class="alert-message" style="background: var(--bg-tertiary); padding: 0.5rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+                                <strong>Test Details:</strong><br>
+                                Confidence: ${alert.test_details.confidence}%<br>
+                                ${alert.test_details.cell_type ? `Cell Type: ${alert.test_details.cell_type}<br>` : ''}
+                                ${alert.test_details.detected ? `Condition Detected: Yes<br>` : ''}
+                            </div>
+                        ` : ''}
+                        <div class="alert-actions" onclick="event.stopPropagation()">
+                            ${!alert.is_read ? `<button class="alert-btn alert-btn-primary" onclick="markAsRead(${alert.alert_id})">Mark as Read</button>` : ''}
+                            <button class="alert-btn" onclick="deleteAlert(${alert.alert_id})">Delete</button>
+                        </div>
+                        ${!alert.is_read ? `<div class="badge-new" style="position: absolute; top: .55rem; right: 1rem;">New</div>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                let emptyMessage = '';
+                if (currentFilter === 'health') {
+                    emptyMessage = 'No health alerts. Your recent tests are normal! ✅';
+                } else if (currentFilter === 'donation') {
+                    emptyMessage = 'No donation alerts yet. Make your first donation! 🩸';
+                } else if (currentFilter === 'badge') {
+                    emptyMessage = 'No badge achievements yet. Keep donating to earn badges! 🏆';
+                } else if (currentFilter === 'unread') {
+                    emptyMessage = 'No unread alerts. All caught up! 📖';
+                } else {
+                    emptyMessage = 'No alerts yet. Your health status is normal! 🎉';
+                }
+                
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔔</div>
+                        <div>${emptyMessage}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load alerts from API
+        async function loadAlerts() {
+            try {
+                const result = await getDonorAlerts(token);
+                if (result.success && result.data) {
+                    allAlerts = result.data;
+                    renderAlerts();
+                    updateStats();
+                    
+                    // Show toast for new unread alerts
+                    const unreadCount = allAlerts.filter(a => !a.is_read).length;
+                    if (unreadCount > 0) {
+                        showToast(`🔔 You have ${unreadCount} new alert(s)!`, 'info');
+                    }
+                } else {
+                    allAlerts = [];
+                    renderAlerts();
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+                document.getElementById('alertsList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <div>Error loading alerts. Please refresh the page.</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'info' ? 'toast-info' : ''}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Setup filter buttons
+        function setupFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderAlerts();
+                });
+            });
+        }
+        
+        // Setup mark all read button
+        document.getElementById('markAllReadBtn').addEventListener('click', markAllAsRead);
+        
+        // Auto-refresh alerts every 30 seconds
+        setupFilters();
+        loadAlerts();
+        setInterval(loadAlerts, 30000);
+        
+        // Add logout style
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn-logout {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem 1rem;
+                border-radius: 0.75rem;
+                text-decoration: none;
+                color: #ef4444;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+            .btn-logout:hover {
+                background: rgba(239, 68, 68, 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Make functions globally accessible for onclick handlers
+        window.markAsRead = markAsRead;
+        window.deleteAlert = deleteAlert;
+    </script>
+    <script src="../js/icons.js"></script>
+</body>
+</html>

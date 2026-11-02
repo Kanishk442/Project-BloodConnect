@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                <span class="logo-text">Blood<b>Connect</b></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html" class="nav-cta">Register</a></li>
+                <li>
+                    <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                        <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i></span>
+                        <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="auth-wrap">
+        <aside class="auth-aside">
+            <h2>Care that starts with a single donation.</h2>
+            <p>Sign in to manage appointments, track your donations and view screening results.</p>
+            <ul class="auth-points">
+                <li><i data-icon="calendar"></i> Book and track donation appointments</li>
+                <li><i data-icon="award"></i> Earn recognition for every donation</li>
+                <li><i data-icon="shield"></i> Secure, role-based access for hospitals</li>
+            </ul>
+        </aside>
+        <main class="auth-main">
+    <div class="form-container">
+        <h2>Welcome back</h2>
+        <p class="form-subtitle">Sign in to your account</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email address</label>
+                <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+            <div class="form-group">
+                <label>Account type</label>
+                <select id="role" class="form-control">
+                    <option value="donor">Donor</option>
+                    <option value="hospital">Hospital</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign in</button>
+        </form>
+        
+        <div class="form-footer">
+            <p>Don't have an account? <a href="register.html">Create account</a></p>
+        </div>
+        <div id="message"></div>
+    </div>
+
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            const result = await login(email, password);
+            
+            if (result.success) {
+                localStorage.setItem('token', result.access_token);
+                localStorage.setItem('user', JSON.stringify(result.user));
+                
+                if (result.user.role === 'donor') {
+                    window.location.href = 'donor/dashboard.html';
+                } else if (result.user.role === 'hospital') {
+                    window.location.href = 'hospital/dashboard.html';
+                } else if (result.user.role === 'admin') {
+                    window.location.href = 'admin/dashboard.html';
+                }
+            } else {
+                document.getElementById('message').innerHTML = 
+                    '<div class="alert alert-danger">' + result.error + '</div>';
+            }
+        });
+    </script>
+    <script src="js/icons.js"></script>
+</body>
+</html>

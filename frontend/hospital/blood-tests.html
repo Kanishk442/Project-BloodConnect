@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test History - BloodConnect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .refresh-btn {
+            padding: 0.5rem 1rem;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .test-details {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .test-details:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .details-row {
+            display: none;
+            background: var(--bg-tertiary);
+        }
+
+        .details-row.show {
+            display: table-row;
+        }
+
+        .details-row td {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+        }@media (max-width: 768px) {
+
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        
+
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div>
+                <a href="/" class="logo">
+                    <span class="logo-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5S5.5 13.8 5.5 20.2a10.5 10.5 0 0 0 21 0C26.5 13.8 16 2.5 16 2.5z" fill="#d62839"/><path d="M16 14v8M12 18h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+                    <span class="logo-text">Blood<b>Connect</b></span>
+                </a>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i data-icon="grid"></i> Dashboard</a></li>
+                <li><a href="appointments.html"><i data-icon="calendar"></i> Appointments</a></li>
+                <li><a href="blood-test.html"><i data-icon="flask"></i> Blood Test</a></li>
+                <li><a href="blood-tests.html" class="active"><i data-icon="file-text"></i> Test History</a></li>
+            </ul>
+            <div class="theme-toggle-sidebar">
+                <div class="theme-toggle" id="themeToggle">
+                    <span class="theme-toggle-icon" data-theme="light"><i data-icon="sun"></i> Light</span>
+                    <span class="theme-toggle-icon" data-theme="dark"><i data-icon="moon"></i> Dark</span>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <a href="#" onclick="logout()" class="btn-logout"><i data-icon="log-out"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Test History</h1>
+                <p>View all blood test results and analysis history</p>
+            </div>
+
+            <div class="filter-bar">
+                <label>Filter by Health Status:</label>
+                <select id="healthFilter" class="filter-select">
+                    <option value="">All</option>
+                    <option value="1">Healthy</option>
+                    <option value="0">Unhealthy</option>
+                </select>
+                <button onclick="loadTests()" class="refresh-btn">Refresh</button>
+            </div>
+
+            <div class="card">
+                <div id="testsList"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        const token = getToken();
+        const user = getUser();
+
+        if (!token || user.role !== 'hospital') {
+            window.location.href = '/login';
+        }
+
+        async function loadTests() {
+            const healthFilter = document.getElementById('healthFilter').value;
+            const container = document.getElementById('testsList');
+            
+            try {
+                const response = await fetch(`${API_BASE}/hospital/blood-tests`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                let tests = await response.json();
+                
+                // Apply filter
+                if (healthFilter !== '') {
+                    tests = tests.filter(test => test.is_healthy == healthFilter);
+                }
+                
+                if (tests && tests.length > 0) {
+                    container.innerHTML = `
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Donor</th>
+                                        <th>Cell Type</th>
+                                        <th>Confidence</th>
+                                        <th>Diseases</th>
+                                        <th>Status</th>
+                                        <th>Tested At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tests.map(test => {
+                                        const isHealthy = test.is_healthy == 1;
+                                        const confidence = test.ml_confidence || 0;
+                                        return `
+                                            <tr class="test-details" onclick="toggleDetails(${test.test_id})">
+                                                <td>${test.test_id}</td>
+                                                <td><strong>${test.donor_name}</strong></td>
+                                                <td><strong>${test.ml_cell_type || 'Unknown'}</strong></td>
+                                                <td>
+                                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                        <div class="confidence-bar">
+                                                            <div class="confidence-fill" style="width: ${confidence}%;"></div>
+                                                        </div>
+                                                        <span style="font-size: 0.75rem;">${confidence}%</span>
+                                                    </div>
+                                                </td>
+                                                <td style="max-width: 200px; white-space: normal;">${test.diseases_detected || 'None'}</td>
+                                                <td>
+                                                    <span class="badge ${isHealthy ? 'badge-healthy' : 'badge-unhealthy'}">
+                                                        ${isHealthy ? 'Healthy' : 'Unhealthy'}
+                                                    </span>
+                                                </td>
+                                                <td style="font-size: 0.75rem;">${fmtDateTime(test.tested_at)}</td>
+                                            </tr>
+                                            <tr id="details-${test.test_id}" class="details-row">
+                                                <td colspan="7">
+                                                    <div style="padding: 1rem;">
+                                                        <strong>🔬 Detailed Analysis:</strong><br>
+                                                        <strong>Image Path:</strong> ${test.image_path || 'N/A'}<br>
+                                                        <strong>Alert Sent:</strong> ${test.alert_sent ? 'Yes' : 'No'}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="empty-state">📊 No blood tests found. <a href="blood-test.html">Upload some images to get started!</a></div>';
+                }
+            } catch (error) {
+                console.error('Error loading tests:', error);
+                container.innerHTML = '<div class="empty-state">Error loading blood tests. Please try again.</div>';
+            }
+        }
+
+        function toggleDetails(testId) {
+            const detailsRow = document.getElementById(`details-${testId}`);
+            if (detailsRow) {
+                detailsRow.classList.toggle('show');
+            }
+        }
+
+        loadTests();
+    </script>
+    <script src="../js/icons.js"></script>
+</body>
+</html>
