@@ -45,7 +45,7 @@
         document.getElementById('appointmentDate').min = new Date(Date.now() + 86400000).toISOString().split('T')[0];
         async function loadHospitals() {
             try {
-                const res = await fetch('http://localhost:5000/api/donor/hospitals/nearby');
+                const res = await fetch('/api/donor/hospitals/nearby');
                 const hospitals = await res.json();
                 const select = document.getElementById('hospitalSelect');
                 select.innerHTML = '<option value="">Select a Hospital</option>';
