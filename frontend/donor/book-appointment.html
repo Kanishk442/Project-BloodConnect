@@ -66,7 +66,7 @@
             if (!hospitalId || !date || !time) { msg.innerHTML = '<div class="alert alert-danger">Please fill all fields</div>'; return; }
             btn.disabled = true; btn.textContent = 'Booking...'; msg.innerHTML = '';
             try {
-                const res = await fetch('http://localhost:5000/api/donor/appointments/book', {
+                const res = await fetch('/api/donor/appointments/book', {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ hospital_id: parseInt(hospitalId), appointment_date: date, appointment_time: time, notes: document.getElementById('notes').value })
                 });
